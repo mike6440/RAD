@@ -1,0 +1,62 @@
+#! /usr/bin/perl
+#tcm_simulator.pl
+
+#use Term::ReadKey;
+
+my $update = 1;
+
+$fin = 'simulate/ra1.txt';
+if ( ! -f $fin ) {
+	printf"Current path = %s",`pwd`;
+	printf"File %s does NOT exist\n",$fin;
+	die;
+}
+
+my ($then, $now);
+$then = $now = now();
+my $irec = 0;
+
+while (1) {
+	$irec = 0;
+	open(F,"<$fin") or die;
+	while (<F>) {
+		chomp( $str = $_);
+		
+		## PRINT THE LINE
+		if ( $str =~ /^\$/ ) {
+			printf "%s\r\n", $str;
+		} else {			
+			printf "%s\r\n", substr($str,24);
+		}
+		
+		## PAUSE A FEW SECONDS
+		while( now() - $then < $update ) {}
+		$then = now();
+	}
+	print"Starting over\n";
+	close F;
+}
+#*************************************************************/
+sub now
+{
+# Get gmt time which uses the computer's time zone and daylight savings state,
+# then use $timezone to put the time into local standard time.
+#v101 060629 rmr -- start config control
+	my $tm;
+	use Time::gmtime;
+	$tm = gmtime;	#gmtime 	# CURRENT DATE 
+	my $nowsec = datesec($tm->year+1900, $tm->mon+1, $tm->mday, $tm->hour, $tm->min, $tm->sec);
+	return ( $nowsec);
+}
+
+#*************************************************************/
+sub datesec 
+# Convert yyyy,Mm,dd,hh,mm,ss to epoch secs
+#v101 060629 rmr -- start config control
+#v102 060629 rmr -- add use command
+{
+	use Time::Local;		# v102 use Time module
+	my $dtsec;
+	$dtsec = timelocal($_[5], $_[4], $_[3], $_[2], $_[1]-1, $_[0]-1900);
+	return ($dtsec);
+}

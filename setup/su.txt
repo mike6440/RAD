@@ -1,0 +1,101 @@
+THIS FILE: su.txt
+	Editdate: 2016 01 03
+	SETUP FOR RAD TEST	
+
+RS232 FLAG: 0
+
+  		Main serial server
+SERIAL HUB URL: 192.168.255.1
+SERIAL HUB MASK: 255.255.255.0
+SERIAL HUB GW: 0.0.0.0
+		Secondary hub for RAD2 system with SPN
+SERIAL HUB2 URL:  192.168.255.2
+SERIAL HUB2 MASK: 255.255.255.0
+SERIAL HUB2 GW: 0.0.0.0
+
+		RAD 10003, SIMULATE 0
+RA1 HUB COM NUMBER: 10001
+RA2 HUB COM NUMBER: 10003
+RA3 HUB COM NUMBER: 10004
+
+               This file will be set with the START command.
+RT OUT PATH: ../data
+
+
+
+	------- EXPERIMENT SETUP ------------
+	  This section identifies the experiment and the experiment parameters. The instrument location, 
+	  and orientation on its platform are identified.
+EXPERIMENT NAME: RAD COMPARE
+GEOGRAPHIC LOCATION: SEATTLE
+PLATFORM NAME: RMRCO
+LOCATION ON PLATFORM: N DECK
+HEIGHT ABOVE SEA LEVEL (m): 200 
+
+	
+MISSING VALUE: -999
+
+----------- RAD #1  SETUP -----------------------------------------
+RAD MODEL NUMBER: RA1-17c
+		The serial number is written on the circuit board.
+RAD SERIAL NUMBER: 207
+		The radiometers below were on the RA1 when I went to ANL on 120723
+RAD PSP SERIAL NUMBER: 8.92
+RAD PIR SERIAL NUMBER: 3.63
+		The standard averaging time is 2 minutes.
+RAD AVERAGING TIME: 60
+RAD DEAD TIME ALARM: 600
+
+RAD COMMENTS:
+ SN220 cal 1507
+END
+
+	
+----------- RAD #1  SETUP -----------------------------------------
+RA1 MODEL NUMBER: RA1-17c
+		The serial number is written on the circuit board.
+RA1 SERIAL NUMBER: 207
+		The radiometers below were on the RA1 when I went to ANL on 120723
+RA1 PSP SERIAL NUMBER: 8.92
+RA1 PIR SERIAL NUMBER: 3.63
+		The standard averaging time is 2 minutes.
+RA1 AVERAGING TIME: 60
+RA1 DEAD TIME ALARM: 600
+
+RA1 COMMENTS:
+ 207
+ SN2xx cal 1501
+END
+
+
+-----------RA2 SETUP -----------------------------------------
+RA2 MODEL NUMBER: RA2-17c
+		The serial number is written on the circuit board.
+RA2 SERIAL NUMBER: 217
+		The radiometers below were on the RA2 when I went to ANL on 120723
+RA2 PSP SERIAL NUMBER: 30600F3
+RA2 PIR SERIAL NUMBER: 30606F3
+		The standard averaging time is 2 minutes.
+RA2 AVERAGING TIME: 60
+RA2 DEAD TIME ALARM: 600
+
+RA2 COMMENTS:
+ The rad measures SW and LW radiation.
+END
+
+-----------RA3  SETUP -----------------------------------------
+RA3 MODEL NUMBER: RA2-17c
+	The serial number is written on the circuit board.
+RA3 SERIAL NUMBER: 201
+RA3 PSP SERIAL NUMBER: 35149F3
+RA3 PIR SERIAL NUMBER: 35116F3
+		The standard averaging time is 2 minutes.
+RA3 AVERAGING TIME: 60
+RA3 DEAD TIME ALARM: 600
+
+RA3 COMMENTS:
+ The rad measures SW and LW radiation.
+END
+
+
+END SETUP FILE

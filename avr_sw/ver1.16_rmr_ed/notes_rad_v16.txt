@@ -1,0 +1,37 @@
+NOTES & QUESTIONS FROM VER 16
+
+1. Heartbeat();
+Why is this in the SampleADC() and not in the main loop?
+I put it in the mail loop at line 243.
+Where is the correct location?
+What is the WDT timeout time?
+
+2. Function ReadBattVolt
+ 	BattV = ((BattVMilliVolts)/100.0) + 1.2;
+What is the purpose of the 1.2?
+
+3. SignOn()
+	Line 358 -- printf("\n\rDigital Interface Board - Rev B. Nov 2007\n\r");
+Is this right?
+
+4. Case & Dome temperature:
+a. In Main section:
+	232 ADC2_mV += Read_Max186(2,0);
+	...
+	261 therm_circuit_ground(ADC2_mV, Cmax, RrefC, Vadc, Vadc, &vt, &Rt, &Pt);
+	
+	Why Read_Max186(*,0), e.g. mode = 0, ==>> bipolar?
+	Do we want bipolar?
+	
+b. In "therm_circuit_ground()" 
+	The first line is
+	  *v_t = V_adc * (c/2) / C_max;
+	where c is ADC2_mV or ADC3_mV above.
+	Why the c/2? You do not do this in PSPSW() or PirTcTd2LW()?
+
+--------
+080821 -- RE reports a possible bug in v16.
+The loop time is always 60 sec.
+
+
+

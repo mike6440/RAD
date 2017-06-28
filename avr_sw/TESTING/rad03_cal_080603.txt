@@ -1,0 +1,74 @@
+CALIBRATION OF THE RAD03
+Date 080603
+
+A. PSP TEST
+PSP CAL COEF (K): 8.52e-6
+
+1. PSP AMP CALIBRATION
+PSP VOLT-A-VIDER:  
+VIN: 0.0, 2.0, 10.0
+ADC: 26.3, 279.3, 1271.7
+STDEV: 15.9, 12.5, 13.3
+
+2. COMPUTE ADC FIT.
+PSP AMP GAIN: 124.4
+PSP AMP OFFSET: 28.2
+
+3. Enter these values and run the program.
+
+4. Enter computed amp gain and offset to RAD
+PSP VOLT-A-VIDER:  
+VIN: 0.0, 2.0, 4.0, 6.0, 10.0
+ADC: 
+STDEV: 
+SW_RAD, NMEA output: -1.3, 236.3, 1179.2
+5. Re-run the cal program.
+
+6. Cut and paste results into cal document.
+
+B. PIRU -- PIR Thermopile
+PIR CAL COEF (K): 
+1. PSP AMP CALIBRATION
+Record: 
+Vin (mv): -0.6, 0, 0.6, 1
+ADC: -416, -58, 429, 713
+STDEV: 12, 29, 31, 28
+
+2. COMPUTE ADC FIT.
+PIR AMP GAIN: 
+PIR AMP OFFSET: 
+3. Enter these values and run the program.
+4. Enter computed amp gain and offset to RAD
+1. PSP AMP CALIBRATION
+Record: 
+Vin (mv): -1, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 1.0
+ADC: 
+STDEV: 
+
+C. CASE TEMPERATURE
+1. Set the Rref reference resistor value.
+With Test R = 9991 ( T = 25.02) adjust Rref in the menu until the NMEA value agrees.
+REFERENCE CASE RESISTOR: 
+
+Use the three test resistances on the test set.  For each resistor enter
+R_TEST is the test resistor: 14966, 9991, 5621
+T_test equivalent temperature: 15.26, 25.01, 39.86
+V_R, voltage across the test resistor at the terminal block: 
+Tcase, RAD NMEA output temperature: 
+ADC, mean from the 'S' test procedure:
+STDEV, from the 'S' test procedure:
+
+D. DOME TEMPERATURE
+1. Set the Rref reference resistor value.
+With Test R = 9991 ( T = 25.02) adjust Rref in the menu until the NMEA value agrees.
+REFERENCE DOME RESISTOR: 
+
+Use the three test resistances on the test set.  For each resistor enter
+R_TEST is the test resistor: 14966, 9991, 5621
+T_test equivalent temperature: 15.26, 25.01, 39.86
+V_R, voltage across the test resistor at the terminal block: 
+Tcase, RAD NMEA output temperature: 
+ADC, mean from the 'S' test procedure:
+STDEV, from the 'S' test procedure:
+
+CAL PROGRAM OUTPUT

@@ -1,0 +1,25 @@
+1. Lines 212-214
+	//Heartbeat();
+	//*** why no heartbeat? 
+    
+2. Function ReadBattVolt
+ 	BattV = ((BattVMilliVolts)/100.0) + 1.2;
+What is the purpose of the 1.2?
+
+3. SignOn()
+	printf("\n\rDigital Interface Board - Rev B. Nov 2007\n\r");
+Is this right?
+
+4. Case & Dome temperature:
+a. In Main section:
+	cx1 = ( Read_Max186(2,0) );
+	therm_circuit_ground(cx1, Cmax, RrefC, Vadc, Vadc, &vt, &Rt, &Pt);
+	
+	Why Read_Max186(*,0), e.g. mode = 0, ==>> bipolar?
+	Do we want bipolar?
+	
+b. In "therm_circuit_ground()" 
+	The first line is
+	  *v_t = V_adc * (c/2) / C_max;
+	where c is cx1 or cx2 above.
+	Why the c/2? You do not do this in the PIR thermopile code.

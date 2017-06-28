@@ -1,0 +1,15 @@
+Creating   'RadMeter.eep'
+Creating   'RadMeter.obj'
+Creating   'RadMeter.lst'
+
+Assembling 'RadMeter.asm'
+Including  'RadMeter.vec'
+Including  'RadMeter.inc'
+
+Program memory usage:
+Code             : 7636 words
+Constants (dw/db): 1955 words
+Unused           :    0 words
+Total            : 9591 words
+
+Assembly complete with no errors.

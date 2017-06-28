@@ -1,0 +1,61 @@
+	THIS FILE NAME: su.txt
+	Editdate: 2013 06 01
+	SETUP FOR RAD TEST	
+
+SERIAL HUB URL: 192.168.255.1
+		RAD1 10003, SIMULATE 0
+RA1 HUB COM NUMBER: 10003
+		RAD 10003, SIMULATE 0
+RA2 HUB COM NUMBER: 10004
+
+               This file will be set with the START command.
+RT OUT PATH: ../data
+
+
+
+	------- EXPERIMENT SETUP ------------
+	  This section identifies the experiment and the experiment parameters. The instrument location, 
+	  and orientation on its platform are identified.
+EXPERIMENT NAME: RAD COMPARE
+GEOGRAPHIC LOCATION: SEATTLE
+PLATFORM NAME: RMRCO
+LOCATION ON PLATFORM: N DECK
+HEIGHT ABOVE SEA LEVEL (m): 200 
+
+	
+MISSING VALUE: -999
+	
+-----------RA1 RAD #1  SETUP -----------------------------------------
+RA1 MODEL NUMBER: RA1-17c
+		The serial number is written on the circuit board.
+RA1 SERIAL NUMBER: 219
+		The radiometers below were on the RA1 when I went to ANL on 120723
+RA1 PSP SERIAL NUMBER: 37668F3, 8.54
+RA1 PIR SERIAL NUMBER: 37684F3, 2.70
+		The standard averaging time is 2 minutes.
+RA1 AVERAGING TIME: 60
+RA1 DEAD TIME ALARM: 600
+
+RA1 COMMENTS:
+ The rad measures SW and LW radiation.
+ SN219 calibration 1306
+END
+
+-----------RA2 RA2 #2  SETUP -----------------------------------------
+RA2 MODEL NUMBER: RA2-17c
+		The serial number is written on the circuit board.
+RA2 SERIAL NUMBER: 220
+		The radiometers below were on the RA2 when I went to ANL on 120723
+RA2 PSP SERIAL NUMBER: 37669F3, 8.30
+RA2 PIR SERIAL NUMBER: 37685F3, 2.56
+		The standard averaging time is 2 minutes.
+RA2 AVERAGING TIME: 60
+RA2 DEAD TIME ALARM: 600
+
+RA2 COMMENTS:
+ The rad measures SW and LW radiation.
+ SN220 calibration 1306
+END
+
+
+END SETUP FILE

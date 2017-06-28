@@ -1,0 +1,25 @@
+CodeVisionAVR C Compiler V1.25.1 Standard
+(C) Copyright 1998-2006 Pavel Haiduc, HP InfoTech s.r.l.
+http://www.hpinfotech.com
+
+File: E:\Edwards\AVR Apps\NOAA\V1.16\ver1.16_rmr_ed\rad_v16.c
+Global variables memory map:
+
+Variable                          Address   Size
+COEFFA                                                                500h      4
+COEFFB                                                                504h      4
+COEFFC                                                                508h      4
+COEFFD                                                                50Ch      4
+h                                                                       R4      1
+m                                                                       R5      1
+s                                                                       R6      1
+dt                                                                      R7      1
+mon                                                                     R8      1
+yr                                                                      R9      1
+t_now                                                              R10,R11      2
+t_end                                                              R12,R13      2
+state                                                                 510h      2
+version                                                               512h     10
+verdate                                                               51Ch     20
+Tabs                                                                  530h      4
+adc                                                                   534h     16

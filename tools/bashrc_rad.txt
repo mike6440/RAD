@@ -1,0 +1,119 @@
+# 2016-01-04
+##########
+# in ~/.bashrc --- $DAQ='RAD';
+##########
+#=============================================================
+# BASH SETUP FOR LINUX
+#===========================================================
+#	MISC STUFF
+export PS1='\w/$ '
+export EDITOR="vi"
+alias Top="top -u -s5"
+alias Date='date -u "+%Y %m %d %H %M %S Z"'
+alias ll="ls -lt"
+
+#  	FOLDERS
+export DAQFOLDER="$DAQPATH/RAD"
+export DAQSWFOLDER="$DAQFOLDER/sw"
+export DAQDATAFOLDER="$DAQFOLDER/data"
+alias gtdaq="cd $DAQSWFOLDER"
+
+echo $PATH | grep -q -s /opt/local/bin
+if [ $? -eq 1 ] ; then
+    PATH=$PATH\:/opt/local/bin\:/opt/local/sbin
+    export PATH
+fi
+
+echo $PATH | grep -q -s $DAQSWFOLDER
+if [ $? -eq 1 ] ; then
+    PATH=$PATH\:$DAQSWFOLDER\:.
+    export PATH
+fi
+
+	# SETUP FILE NAME
+export SETUPFILE=$DAQSWFOLDER"/setup/su.txt"
+
+# TEST CALLS
+alias I1='cd $DAQSWFOLDER; 	term_to_ra1 $SETUPFILE'
+alias I2='cd $DAQSWFOLDER; 	term_to_ra2 $SETUPFILE'
+alias I3='cd $DAQSWFOLDER; 	term_to_ra3 $SETUPFILE'
+alias I='cd $DAQSWFOLDER; 	kerm232 19200'
+
+		# CHECK DATA
+ra1avg () {
+	cd $DAQSWFOLDER;
+	xx=`LastDataFolder ra1_avg`
+	head -1 $xx
+	tail -f $xx
+}
+ra1raw () {
+	cd $DAQSWFOLDER;
+	xx=`LastDataFolder ra1_raw`
+	tail -f $xx
+}
+ra2avg () {
+	cd $DAQSWFOLDER;
+	xx=`LastDataFolder ra2_avg`
+	head -1 $xx
+	tail -f $xx
+}
+ra2raw () {
+	cd $DAQSWFOLDER;
+	xx=`LastDataFolder ra2_raw`
+	tail -f $xx
+}
+ra3avg () {
+	cd $DAQSWFOLDER;
+	xx=`LastDataFolder ra3_avg`
+	head -1 $xx
+	tail -f $xx
+}
+ra3raw () {
+	cd $DAQSWFOLDER;
+	xx=`LastDataFolder ra3_raw`
+	tail -f $xx
+}
+
+	# SCREEN
+alias isscreen='screen -ls'
+alias gtscreen='screen -S RAD -d -r'
+
+	# RUN CALLS
+alias G1='cd $DAQSWFOLDER;  Z_ra1 `cat tmp`'
+alias G2='cd $DAQSWFOLDER;  Z_ra2 `cat tmp`'
+alias G3='cd $DAQSWFOLDER;  Z_ra3 `cat tmp`'
+
+
+		#START SCREEN
+Startrad () {
+	cd $DAQSWFOLDER; ./PrepareForRun; export RUNSETUPFILE=`cat tmp`;
+	#crontab $DAQFOLDER/tools/crontab_rad.txt
+	KillScreen;
+	screen -S RAD -d -m -c $DAQFOLDER/tools/screenrc_rad.txt
+	screen -S RAD -p 0 -X stuff "bash$(printf \\r)"
+	screen -S RAD -p 0 -X stuff "G1$(printf \\r)"
+	screen -S RAD -p 1 -X stuff "bash$(printf \\r)"
+	screen -S RAD -p 1 -X stuff "G2$(printf \\r)"
+	screen -S RAD -p 2 -X stuff "bash$(printf \\r)"
+	screen -S RAD -p 2 -X stuff "G3$(printf \\r)"
+}
+
+	#STOP DATA COLLECTION SCREEN
+alias Stoprad="KillScreen; Cleanuprad;"
+
+	#START AND STOP CRONTAB
+alias Startcron="crontab $DAQFOLDER/tools/crontab_rad.txt"
+alias Stopcron="crontab -r"
+
+
+#		PERL LIBRARY =============================
+export DAQLIB=$DAQFOLDER"/tools"
+export MYLIB=$DAQLIB
+
+	# KERMIT RC =====================
+echo "prompt k>>" > ~/.kermrc
+
+
+cd $DAQSWFOLDER
+#fi
+

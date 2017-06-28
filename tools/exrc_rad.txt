@@ -1,0 +1,4 @@
+:set autoindent
+:set ts=4
+:set number
+

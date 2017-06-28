@@ -1,0 +1,14 @@
+//PROTOTYPES
+...
+void SampleADC(void);
+void SampleADC_cal(void); //v18a  <-- add this line
+
+log error
+The "double log(double)" is a standard C function.
+It needs <math.h> which we have.
+Not sure what to suggest with this one.
+
+https://www.tutorialspoint.com/c_standard_library/c_function_log.htm
+
+Cheers,
+Mike

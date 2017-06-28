@@ -1,0 +1,68 @@
+#!/usr/bin/expect --
+#term_to_rad.ex (MAC)
+#Note: the file .kermrc has the command "prompt k>>"
+
+# KERMIT CONNECTION TO PDS752 COM 1
+
+log_user 0
+
+set argc [llength $argv]
+set setupfile "$env(DAQSWFOLDER)/setup/su.txt";
+send_user "setupfile = $setupfile\n";
+
+#==============
+## READ SETUP FILE FOR IP ADDRESS
+#==============
+spawn -noecho ./getsetupinfo $setupfile "SERIAL HUB URL"
+expect -re "(\.*)(\r)";
+set hubip $expect_out(1,string)
+send_user "SERIAL HUB URL: $hubip\n"
+
+#==============
+## READ SETUP FILE FOR PORT NUMBER
+#==============
+spawn -noecho ./getsetupinfo $setupfile "RA1 HUB COM NUMBER"
+expect -re "(\.*)(\r)";
+set portnumber $expect_out(1,string)
+send_user "RAD1 PORT NUMBER: $portnumber\n"
+
+# START PROCESS -- KERMIT FOR ISAR MODEM
+spawn kermit
+set PDS $spawn_id
+set timeout 4
+
+expect {
+	timeout {"KERMIT FAILS TO OPEN\n"; exit 1}
+	">>"
+}
+
+## OPEN THE PORT
+send "set host $hubip $portnumber\r"
+expect ">>"
+send_user "set host $hubip $portnumber\n";
+
+## FINE TUNING TCP/IP
+send "set tcp keepalive on 0\r\n"
+expect ">>"
+send "set tcp linger 0\r\n"
+expect ">>"
+send "set tcp nodelay on\r\n"
+expect ">>"
+send "set telnet echo remote\r\n"
+expect ">>"
+send "set local-echo off\r\n"
+expect ">>"
+
+
+## CONNECT 
+send "connect\r"
+expect {
+	"Conn*---"  {send_user "RAD CONNECTED\n"}
+	timeout {send_user "RAD TIMEOUT, NO CONNECT"; exit 1}
+}
+
+
+set spawn_id $PDS
+interact
+
+exit 0

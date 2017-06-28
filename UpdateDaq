@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# crontab -e to set this cron job
+#To use my bashrc stuff
+#MAILTO=""
+#BASH_ENV="$HOME/.bashrc"
+#SHELL=/bin/bash
+#    SBD transmit
+#26,56 * * * * $DAQSWFOLDER/sbd_transmit >> $DAQDATAFOLDER/sbdlog
+#    Check and reboot
+#14 * * * * $DAQSWFOLDER/UpdateDaq >> $DAQDATAFOLDER/daqlog
+			
+
+version="RAD v02 160104"
+#export DAQFOLDER="$HOME/swmain/apps/ISAR3"
+#export DAQSWFOLDER=$DAQFOLDER"/sw"
+#export DAQLIB=$DAQFOLDER"/tools"
+#export MYLIB=$DAQLIB
+#export DAQDATAFOLDER=$DAQFOLDER"/data"
+#export SETUPFILE=$DAQFOLDER"/sw/setup/su.txt"
+#echo $PATH | grep -q -s $DAQSWFOLDER
+#if [ $? -eq 1 ] ; then
+#    PATH=$PATH\:$DAQSWFOLDER\:.
+#    export PATH
+#fi
+
+cd $DAQSWFOLDER
+
+echo $version" ====================" >> $DAQDATAFOLDER/daqlog;
+date -u "+%Y %m %d %H %M %S Z" >> $DAQDATAFOLDER/daqlog;
+
+DaqUpdate >> $DAQDATAFOLDER/daqlog
+
+chk=`cat /tmp/tmpdaq`;
+if [ $chk -eq 1 ] > /dev/null ; then
+#	echo UpdateDaq no reboot
+	echo "UpdateDaq, no reboot." >> $DAQDATAFOLDER/daqlog
+	exit 0;
+fi
+
+if [ $chk -eq 0 ] > /dev/null ; then
+	echo REBOOT
+	echo "REBOOT." >> $DAQDATAFOLDER/daqlog
+		# STOPPRP
+	$DAQSWFOLDER/KillScreen >> $DAQDATAFOLDER/daqlog
+	$DAQSWFOLDER/Cleanuprad >> $DAQDATAFOLDER/daqlog
+		# STARTPRP
+	$DAQSWFOLDER/PrepareForRun >> $DAQDATAFOLDER/daqlog
+	screen -S RAD -d -m -c $DAQFOLDER/tools/screenrc_rad.txt
+		# START PROCESSES
+	screen -S RAD -p 0 -X stuff "bash$(printf \\r)"
+	screen -S RAD -p 0 -X stuff "G1$(printf \\r)"
+	screen -S RAD -p 1 -X stuff "bash$(printf \\r)"
+	screen -S RAD -p 1 -X stuff "G2$(printf \\r)"
+	screen -S RAD -p 2 -X stuff "bash$(printf \\r)"
+	screen -S RAD -p 2 -X stuff "G3$(printf \\r)"
+
+	#echo UpdateDaq, reboot exit >> $DAQDATAFOLDER/daqlog
+	exit 1;
+fi
+exit 0;
+

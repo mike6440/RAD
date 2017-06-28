@@ -1,0 +1,275 @@
+#!/usr/bin/expect --
+
+# CALLING
+#    expect Z_ra3 "setup/anl_setup.txt"
+#
+#v01 -- 
+
+set PROGRAMNAME Z_ra3
+set VERSION v03
+set EDITDATE 160104
+
+puts "
+RUN PROGRAM $PROGRAMNAME, VERSION $VERSION, EDITDATE $EDITDATE"
+
+set loguser 0;
+log_user $loguser  ;# 0-quiet, 1=verbose
+
+#====================================================================
+# PROCEDURE WRITE_INFO
+# input
+#  fname = fullfile name towrite the info string
+#  str=the string to write
+#=============
+proc write_info {fname str} {
+	set tm [timestamp -format "%y%m%d,%H%M%S"]
+	set str "$tm,$str";
+	#send_user "$str\n"
+	set F [open $fname a]
+	puts $F "$str" 
+	close $F
+	return $str
+}
+
+#===========================================================================
+# PROCEDURE TO CONNECT TO A PORT USING KERMIT
+# input
+#	serialport = full path name for the serial port, e.g. /dev/tty.usbserial0
+#   baud = desired baud rate, e.g. 9600
+#============================================
+proc spawn_kermit {hub_url portnumber} {
+	# START PROCESS -- KERMIT FOR RA3
+	send_user "Launch kermit\n";		
+	set pid [spawn kermit]
+	set timeout 4
+	
+	expect {
+		timeout {send_user "KERMIT FAILS TO OPEN\n"; exit 1}
+		">>"
+	}
+	
+	send_user "OPEN PORT $portnumber\n";
+	## OPEN THE PORT
+	send "set host $hub_url $portnumber\r"
+	expect ">>"
+	send_user "set host $hub_url $portnumber\n";
+	
+	## FINE TUNING TCP/IP
+	send "set tcp keepalive on 0\r\n"
+	expect ">>"
+	send "set tcp linger OFF\r\n"
+	expect ">>"
+	send "set tcp nodelay on\r\n"
+	expect ">>"
+	send "set telnet echo local\r\n"
+	expect ">>"
+	## this is important for using the rsr menu
+	## raw means send CR by itself, not CRLF and NOT CRNul
+	send "set telnet newline-mode nvt raw\r\n"
+	expect ">>"
+
+
+	## CONNECT 
+	send "connect\r"
+	expect {
+		"Conn*---"  {send_user "PORT $portnumber CONNECTED\n"; return $spawn_id;}
+		timeout {send_user "TIMEOUT, NO CONNECT"; exit 1}
+	}
+}
+
+
+#==================== END PROCEDURES =============================================
+
+set argc [llength $argv]
+
+#==============
+# SETUP FILE DEFINED
+#==============
+set setupfile  [lindex $argv 0]
+puts "SETUP FILE FROM CMD LINE: $setupfile"
+## SEE IF THE SETUP FILE EXISTS
+if [catch {open $setupfile} sufile] {
+	puts "Setup file open fails, exit 1"
+	exit 1
+} else {
+	puts "SETUP FILE $setupfile EXISTS"
+}
+
+
+## READ THE RT OUT PATH
+spawn -noecho ./getsetupinfo $setupfile "RT OUT PATH"
+expect -re "(\.*)(\r)";
+set datapath $expect_out(1,string)
+send_user "DATAPATH = $datapath\n";
+
+# WRITE A HEADER TO INFO FILE
+set tm [timestamp -format "%y%m%d%H%M%S"];
+set infoname "$datapath/ra3_info.txt";
+puts "RA3 INFORMATION FILE: $infoname\n"
+set str  "PROGRAM $PROGRAMNAME, Version $VERSION, Editdate $EDITDATE, Runtime [timestamp -format "%Y%m%d,%H%M%S"]"
+write_info $infoname  $str 
+write_info $infoname "\n========== BEGIN PROGRAM $PROGRAMNAME ============="
+
+## =========================================
+## READ THE SETUPFILE
+## ========================================
+write_info $infoname  "RT OUT PATH: $datapath"
+
+# PDS SERIAL HUB URL AND OFFSET
+spawn -noecho ./getsetupinfo $setupfile "SERIAL HUB URL"
+expect -re "(\.*)(\r)";
+set hub_url $expect_out(1,string)
+write_info $infoname  "SERIAL HUB URL: $hub_url"
+
+
+spawn -noecho ./getsetupinfo $setupfile "RA3 HUB COM NUMBER"
+expect -re "(\.*)(\r)";
+set radport $expect_out(1,string)
+write_info $infoname  "RA3 HUB COM NUMBER: $radport"
+
+spawn -noecho ./getsetupinfo $setupfile "RA3 MODEL NUMBER"
+expect -re "(\.*)(\r)";
+write_info $infoname  "RA3 MODEL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RA3 SERIAL NUMBER"
+expect -re "(\.*)(\r)";
+write_info $infoname  "RA3 SERIAL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RA3 PSP SERIAL NUMBER"
+expect -re "(\.*)(\r)";
+write_info $infoname  "RA3 PSP SERIAL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RA3 PIR SERIAL NUMBER"
+expect -re "(\.*)(\r)";
+write_info $infoname  "RA3 PIR SERIAL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RA3 AVERAGING TIME"
+expect -re "(\.*)(\r)";
+write_info $infoname  "RA3 AVERAGING TIME: $expect_out(1,string)"
+
+## TIME WITH NO ADC
+spawn -noecho ./getsetupinfo $setupfile "RA3 DEAD TIME ALARM"
+expect -re "(\.*)(\r)";
+write_info $infoname  "RA3 DEAD TIME ALARM: $expect_out(1,string)"
+set raddeadtime $expect_out(1,string);
+puts "RA3 DEAD TIME: $raddeadtime";
+
+
+# KERMIT/SIMULATE CONNECTION
+# SIMULATE
+if { $radport == 0 } {
+	send_user "spawn perl simulate/ra3_simulator\n";
+	spawn perl simulate/ra3_simulator 5
+	set RA3	$spawn_id;
+	write_info $infoname "RA3 SIMULATE INPUT"
+# MISSING
+} elseif { $radport == -1 } {
+	set RA3 -1
+	set RADAV -1
+	write_info $infoname "SKIP RA3 INPUT"
+# OPEN TELNET CONNECTION AND BEGIN AVG PROGRAM
+} else {
+	send_user "\n=========== OPEN RA3 PORT $hub_url $radport ==============\n";
+	set RA3 [spawn_kermit $hub_url $radport];
+	# OPEN PORT FAILS
+	if { $RA3 == 0 } {
+		write_info $infoname "RA3 KERMIT SPAWN FAILS ON START UP"
+		exit 1
+	}
+}
+
+# AVG PROGRAM
+spawn perl avgra3 $setupfile;
+set RADAV $spawn_id;
+
+write_info $infoname "SPAWN RADAV spawn_id = $spawn_id"
+# WAIT FOR THE STARTUP PROMPT
+set timeout 5
+expect {
+	# TIMEOUT (avg program) WITH NO REPLY
+	timeout {
+		send -i $RADAV "quit\r\n"
+		send_user "AVGRAD STARTUP, Timeout with no reply\n"
+		exit 1
+	}
+	# REPLY FROM AVG PROGRAM
+	"RA3--" {
+		send_user "AVGRAD is ready\n"
+	}
+}
+
+# =====================
+# MAIN LOOP
+#======================
+# COUNT THE NUMBER OF GOOD RAW RECORDS RECEIVED
+set Nrecsrad 0
+set day0 0 ;# to initiate the first raw file
+
+set Nrecs 0
+
+# EXPECT LOOP
+set timemsg [timestamp -gmt]	;# --- MISSING INPUT TRANSMIT TIME
+set timerad $timemsg			;# --- TIME THE RA3 IS RECEIVED 
+set timeradlast 0      		;# --- TIME OF THE LAST RECEIVED RA3
+while 1 {
+	set dt [timestamp -gmt]		;# --- LOOP TIME
+	
+	#=====================
+	# CHECK FOR A GAP IN RAW STRINGS
+	#=====================
+	if { [expr $dt - $timemsg] > 60 && [expr $dt - $timerad] > $raddeadtime} {
+		send_user "NO RAW RA3 in 60 sec.\n"
+		set timemsg $dt
+	}
+	
+	#======
+	# CHECK FOR A NEW DAY -- NEW FILES
+	#======
+	set day1 [timestamp -gmt -format "%j" -seconds $dt]		;# julian day   
+	if {$day1 != $day0} {
+		set day0 $day1
+		set fname [timestamp -gmt -format "%y%m%d" -seconds $dt]
+		set rawname "$datapath/ra3_raw_$fname.txt";
+		if {[file exists $rawname]} {
+			#send_user "Appending to file $rawname\n"
+		} else {
+			set F [open $rawname w 0600]
+			puts $F "nrecs yyyy MM dd hh mm ss \$WIxxx,yy/MM/dd,hh:mm:ss,npts,pir,lw,tcase,tdome,sw,trad,batt"
+			close $F
+		}
+	}
+	#===================================
+	# SAMPLING LOOP
+	#===================================
+	set timeout 20
+	expect { 
+		timeout {send_user "main loop timed out at $timeout secs\n";}		;# we should rcv sometinh in 10 secs
+		-i $RA3
+			-re "(\\\$WIR\.*)\n" {
+				set timerad [timestamp -gmt]    ;# exact time the packet is received.
+						# --- TRAP DUP TIMES ----
+				if { $timerad <= $timeradlast } {
+					send_user "Duplicate time\n"
+				}	else {
+					set timeradlast $timerad;
+							#-------			
+					set radstr $expect_out(1,string);
+					set radstr [string trimright $radstr]
+					set rawstr [timestamp -gmt -format "$Nrecs %Y %m %d %H %M %S " -seconds $timerad]$radstr
+					# SAVE TO RAW FILE
+					set F [open $rawname a 0600]
+					puts $F $rawstr
+					close $F
+					# SEND RAW TO AVG AND RCV RESPONSE
+					set spawn_id $RADAV
+					send "$radstr\r\n"
+					expect {
+						-re "<<(RAD3RW\.*)>>"	{send_user "$expect_out(1,string)\n"} 
+					}
+					set Nrecs [expr $Nrecs + 1];
+				}
+			}
+		-i $RADAV
+			-re "<<(RAD3AV\.*)>>"	{send_user "$expect_out(1,string)\n"}
+	}
+}

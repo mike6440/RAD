@@ -1,0 +1,145 @@
+CALIBRATION OF THE RAD
+A. PSP TEST
+PSP CAL COEF (K): 
+
+1. PSP AMP CALIBRATION
+PSP VOLT-A-VIDER:  
+VIN: 0.0, 2.0, 4.0, 6.0, 10.0
+ADC: 
+STDEV: 
+
+2. COMPUTE ADC FIT.
+PSP AMP GAIN: 
+PSP AMP OFFSET: 
+
+3. Enter these values and run the program.
+
+4. Enter computed amp gain and offset to RAD
+PSP VOLT-A-VIDER:  
+VIN: 0.0, 2.0, 4.0, 6.0, 10.0
+ADC: 
+STDEV: 
+
+5. Re-run the cal program.
+
+6. Cut and paste results into cal document.
+
+B. PIRU -- PIR Thermopile
+PIR CAL COEF (K): 
+1. PSP AMP CALIBRATION
+Record: 
+Vin (mv): -1, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 1.0
+ADC: 
+STDEV: 
+
+2. COMPUTE ADC FIT.
+PIR AMP GAIN: 
+PIR AMP OFFSET: 
+3. Enter these values and run the program.
+4. Enter computed amp gain and offset to RAD
+1. PSP AMP CALIBRATION
+Record: 
+Vin (mv): -1, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 1.0
+ADC: 
+STDEV: 
+
+C. CASE TEMPERATURE
+1. Set the Rref reference resistor value.
+With Test R = 9991 ( T = 25.02) adjust Rref in the menu until the NMEA value agrees.
+REFERENCE CASE RESISTOR: 
+
+Use the three test resistances on the test set.  For each resistor enter
+R_TEST is the test resistor: 14966, 9991, 5621
+T_test equivalent temperature: 15.26, 25.01, 39.86
+V_R, voltage across the test resistor at the terminal block: 
+Tcase, RAD NMEA output temperature: 
+ADC, mean from the 'S' test procedure:
+STDEV, from the 'S' test procedure:
+
+D. DOME TEMPERATURE
+1. Set the Rref reference resistor value.
+With Test R = 9991 ( T = 25.02) adjust Rref in the menu until the NMEA value agrees.
+REFERENCE DOME RESISTOR: 
+
+Use the three test resistances on the test set.  For each resistor enter
+R_TEST is the test resistor: 14966, 9991, 5621
+T_test equivalent temperature: 15.26, 25.01, 39.86
+V_R, voltage across the test resistor at the terminal block: 
+Tcase, RAD NMEA output temperature: 
+ADC, mean from the 'S' test procedure:
+STDEV, from the 'S' test procedure:
+
+CAL PROGRAM OUTPUT
+---- PSP ------------------------------------------------------------------
+RAD02: PSP K = 8.52e-06, AMP GAIN = 125.0, AMP OUTPUT OFFSET, MV = 35.0
+VIN is the input voltage (mv)
+ADC is the ADC count mean from several samples.
+SW-RAD is the SW computed by RAD in the NMEA
+SW-ADC is SW computed from ADC count and fitted gain and offset.
+SW-TEST is SW based on input volts and K.
+   VIN(MV)   ADC(mv)       SW-RAD     SW_ADC     SW-TEST
+       0.0       17.0       -1.3      -16.9        0.0
+       5.0      640.0      584.5      568.1      586.9
+      10.0     1267.0     1171.3     1156.8     1173.7
+AMP GAIN = 125.0, AMP OFFSET = 16.3 MV
+
+RECOMPUTE WITH ADJUSTED GAIN
+AMP GAIN = 125.0, AMP OFFSET = 16.3 MV
+VIN is the input voltage (mv)
+ADC is the ADC count mean from several samples.
+SW-RAD is the SW computed by RAD in the NMEA
+SW-ADC is SW computed from ADC count and fitted gain and offset.
+SW-TEST is SW based on input volts and K.
+   VIN(MV)   ADC(mv)       SW-RAD     SW_ADC     SW-TEST
+       0.0       17.0       -1.3        0.6        0.0
+       5.0      640.0      584.5      585.6      586.9
+      10.0     1267.0     1171.3     1174.3     1173.7
+ 
+--- PIRU --------------------------------------------------------------------------------
+RAD02: PIR K = 3.11e-06, AMP GAIN = 825.0, AMP OUTPUT OFFSET, MV = 0.0
+VIN is the input voltage (mv)
+ADC is the ADC count mean of 10 samples.
+   VIN   ADC 
+      -1.0     854.00
+      -0.6     533.00
+       0.0      39.00
+       0.6    -403.00
+ADC GAIN = -789.0, ADC OFFSET = 58.5 MV
+
+ 
+---- CASE TEMPERATURE -----------------------------------------------------------------
+RAD02: PIR CASE Vadc = 4095.0 mv, Cmax = 2048, Rref = 32200.0 ohms
+R-TEST = calibration resistances. (ohms)
+T-TEST = thermistor temperature for cal resistors. (C)
+ADC is the corresponding ADC count from the test menu. (count)
+V-MEAS is the voltage measured across the test resistances. (mv)
+R-REF is the reference resistance computed from measured voltage across the test resistances. (ohms)
+V-ADC is the voltage computed from the ADC count and the measured Vref. (mv)
+R-RAD is the thermistor resistance computed from adc. This is the RAD value. (ohms)
+T-OUT is the temperature from the RAD NMEA line.
+T-RAD0 is the temperature based on computed thermistor resistance computed by the RAD program. (C)
+T-CORR is the correction to T-RAD from the power dissipation. (C)
+RATIO is (V-ADC - V-MEAS) / V-ADC.
+   R-TEST   T-TEST   V-MEAS  R-REF    ADC    V-ADC    R-RAD     T-OUT    T-RAD0  T-CORR  RATIO
+   14966    15.261    1273   33176.8  1263   1262.8  14357.4    15.53    16.24   0.028  -0.008
+    9991    25.016     948   33166.3   943    942.8   9630.4    25.06    25.93   0.023  -0.006
+    5621    39.862     593   33195.2   595    595.1   5475.1    39.40    40.57   0.016   0.004
+Mean Rref = 33179.4
+ 
+---- DOME TEMPERATURE -----------------------------------------------------------------
+RAD02: PIR DOME Vadc = 4095.0 mv, Cmax = 2048, Rref = 32700.0 ohms
+R-TEST = calibration resistances. (ohms)
+T-TEST = thermistor temperature for cal resistors. (C)
+ADC is the corresponding ADC count from the test menu. (count)
+V-MEAS is the voltage measured across the test resistances. (mv)
+R-REF is the reference resistance computed from measured voltage across the test resistances. (ohms)
+V-ADC is the voltage computed from the ADC count and the measured Vref. (mv)
+R-RAD is the thermistor resistance computed from adc. This is the RAD value. (ohms)
+T-RAD0 is the temperature based on computed thermistor resistance computed by the RAD program. (C)
+T-CORR is the correction to T-RAD from the power dissipation. (C)
+RATIO is (V-ADC - V-MEAS) / V-ADC.
+   R-TEST   T-TEST   V-MEAS  R-REF    ADC    V-ADC    R-RAD     T-OUT    T-RAD0  T-CORR  RATIO
+   14966    15.261    1272   33214.6  1277   1277.1  14819.8    15.51    15.49   0.028   0.004
+    9993    25.011     948   33173.0   956    955.6   9953.9    25.05    25.11   0.023   0.008
+    5621    39.862     593   33195.2   606    606.2   5681.3    39.52    39.58   0.016   0.022
+Mean Rref = 33194.3

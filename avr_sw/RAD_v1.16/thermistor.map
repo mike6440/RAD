@@ -1,0 +1,25 @@
+CodeVisionAVR C Compiler V1.25.1 Standard
+(C) Copyright 1998-2006 Pavel Haiduc, HP InfoTech s.r.l.
+http://www.hpinfotech.com
+
+File: E:\Edwards\AVR Apps\NOAA\V1.16\ver1.16_rmr_ed\thermistor.c
+Global variables memory map:
+
+Variable                          Address   Size
+COEFFA                                                                500h      4
+COEFFB                                                                504h      4
+COEFFC                                                                508h      4
+COEFFD                                                                50Ch      4
+h                                                                       R4      1
+m                                                                       R5      1
+s                                                                       R6      1
+now                                                                     R7      1
+then                                                                    R8      1
+dt                                                                      R9      1
+mon                                                                    R10      1
+yr                                                                     R11      1
+state                                                              R12,R13      2
+version                                                               510h     10
+verdate                                                               51Ah     20
+Tabs                                                                  52Eh      4
+adc                                                                   532h     16

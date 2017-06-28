@@ -1,0 +1,235 @@
+#!/usr/bin/expect --
+
+# CALLING
+#    expect Z_rad "setup/anl_setup.txt"
+#
+#v01 -- 
+
+set PROGRAMNAME Z_rad
+set VERSION v04
+set EDITDATE 150703
+
+puts "
+RUN PROGRAM $PROGRAMNAME, VERSION $VERSION, EDITDATE $EDITDATE"
+
+set loguser 0;
+log_user $loguser  ;# 0-quiet, 1=verbose
+
+global RAD RADPID RADAV RADAVPID Finfo  Fraw setupfile
+
+#===========================================================================
+# PROCEDURE TO CONNECT TO A PORT USING KERMIT
+# input
+#	serialport = full path name for the serial port, e.g. /dev/tty.usbserial0
+#   baud = desired baud rate, e.g. 9600
+#============================================
+proc SpawnRad232 { } {
+	global RAD RADPID
+		# Find the USB port
+	set usbport [exec perl FindUSBPort]
+		# START PROCESS -- KERMIT FOR RS232
+	set RADPID [spawn kermit]
+	set RAD $spawn_id
+	set timeout 2
+	expect {
+		timeout {"KERMIT FAILS TO OPEN\n"; exit 1}
+		">>"
+	}
+	write_info "SPAWN RAD KERMIT, spawn_id = $RAD,  pid = $RADPID"
+		# OPEN line
+	send "set line $usbport\r"
+	expect ">>"
+	write_info "RS232 CONNECT TO $usbport"
+		# speed
+	send "set speed 19200\r"
+	expect ">>"
+		# duplex
+	send "set duplex half\r"
+	expect ">>"
+		# flow control
+	send "set flow none\r"
+	expect ">>"
+		# carrier watch
+	send "set carrier-watch off\r"
+	expect ">>"
+	## CONNECT 
+	send "connect\r"
+	expect {
+		"Conn*---" { write_info "SERIAL CONNECTED TO $usbport"; }  
+		timeout {send_user "RAD SERIAL TIMEOUT, NO CONNECT"; exit 1}
+	}
+}
+
+#======================================
+#   PROCEDURE TO START AVGPRP PROGRAM
+#==================================
+proc SpawnAvgRad {  } {
+	global RADAV RADAVPID setupfile
+	
+	set RADAVPID [spawn perl avgrad $setupfile]
+	set RADAV $spawn_id
+	write_info "SPAWN AVGRAD spawn_id = $RADAV, pid = $RADAVPID"
+			# PROGRAM REPLY
+	expect {
+		eof {
+			send_user "AVGRAD STARTUP, eof\n"
+			exit 1
+		}
+		"RAD--" {
+			send_user "AVGRAD is ready, spawn_id=$RADAV,  pid = $RADAVPID\n"
+		}
+	}
+}
+
+#====================================================================
+# PROCEDURE WRITE_INFO
+# input
+#  fname = fullfile name towrite the info string
+#  str=the string to write
+#=============
+proc write_info {str} {
+	global Finfo;
+	
+	set tm [timestamp -format "%y%m%d,%H%M%S"]
+	set str "$tm,$str";
+	puts $Finfo "$str" 
+	return $str
+}
+
+#==================== END PROCEDURES =============================================
+
+set argc [llength $argv]
+
+#==============
+# SETUP FILE DEFINED
+#==============
+set setupfile  [lindex $argv 0]
+puts "SETUP FILE FROM CMD LINE: $setupfile"
+## SEE IF THE SETUP FILE EXISTS
+if [catch {open $setupfile} sufile] {
+	puts "Setup file open fails, exit 1"
+	exit 1
+} else {
+	puts "SETUP FILE $setupfile EXISTS"
+}
+
+
+
+## READ THE RT OUT PATH
+spawn -noecho ./getsetupinfo $setupfile "RT OUT PATH"
+expect -re "(\.*)(\r)";
+set datapath $expect_out(1,string)
+send_user "DATAPATH = $datapath\n";
+
+# OPEN INFO FILE
+set infoname "$datapath/prp_info.txt";
+set Finfo [open $infoname a];
+
+
+# WRITE A HEADER TO INFO FILE
+set tm [timestamp -format "%y%m%d%H%M%S"];
+set infoname "$datapath/rad_info.txt";
+puts "RAD INFORMATION FILE: $infoname\n"
+set str  "PROGRAM $PROGRAMNAME, Version $VERSION, Editdate $EDITDATE, Runtime [timestamp -format "%Y%m%d,%H%M%S"]"
+write_info $str 
+write_info "\n========== BEGIN PROGRAM $PROGRAMNAME ============="
+
+## =========================================
+## READ THE SETUPFILE
+## ========================================
+write_info  "RT OUT PATH: $datapath"
+
+spawn -noecho ./getsetupinfo $setupfile "RAD MODEL NUMBER"
+expect -re "(\.*)(\r)";
+write_info  "RAD MODEL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RAD SERIAL NUMBER"
+expect -re "(\.*)(\r)";
+write_info  "RAD SERIAL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RAD PSP SERIAL NUMBER"
+expect -re "(\.*)(\r)";
+write_info  "RAD PSP SERIAL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RAD PIR SERIAL NUMBER"
+expect -re "(\.*)(\r)";
+write_info  "RAD PIR SERIAL NUMBER: $expect_out(1,string)"
+
+spawn -noecho ./getsetupinfo $setupfile "RAD AVERAGING TIME"
+expect -re "(\.*)(\r)";
+write_info  "RAD AVERAGING TIME: $expect_out(1,string)"
+
+## TIME WITH NO ADC
+spawn -noecho ./getsetupinfo $setupfile "RAD DEAD TIME ALARM"
+expect -re "(\.*)(\r)";
+write_info  "RAD DEAD TIME ALARM: $expect_out(1,string)"
+set raddeadtime $expect_out(1,string);
+puts "RAD DEAD TIME: $raddeadtime";
+
+
+# KERMIT/SIMULATE CONNECTION
+SpawnRad232;
+
+# AVG PROGRAM
+SpawnAvgRad;
+
+
+# =====================
+# MAIN LOOP
+#======================
+# COUNT THE NUMBER OF GOOD RAW RECORDS RECEIVED
+set Nrecsrad 0
+set day0 0 ;# to initiate the first raw file
+
+set Nrecs 0
+
+# EXPECT LOOP
+set timemsg [timestamp -gmt]	;# --- MISSING INPUT TRANSMIT TIME
+set timerad $timemsg			;# --- TIME THE RAD IS RECEIVED 
+set timeradlast 0      		;# --- TIME OF THE LAST RECEIVED RAD
+while 1 {
+	set dt [timestamp -gmt]		;# --- LOOP TIME
+	
+	#======
+	# CHECK FOR A NEW DAY -- NEW FILES
+	#======
+	set day1 [timestamp -gmt -format "%j" -seconds $dt]		;# julian day   
+	if {$day1 != $day0} {
+		set day0 $day1
+		set fname [timestamp -gmt -format "%y%m%d" -seconds $dt]
+		set rawname "$datapath/rad_raw_$fname.txt";
+		if {[file exists $rawname]} {
+			#send_user "Appending to file $rawname\n"
+		} else {
+			set F [open $rawname w 0600]
+			puts $F "nrecs yyyy MM dd hh mm ss \$WIxxx,yy/MM/dd,hh:mm:ss,npts,pir,lw,tcase,tdome,sw,trad,batt"
+			close $F
+		}
+	}
+	#===================================
+	# SAMPLING LOOP
+	#===================================
+	set timeout 20
+	expect { 
+		-i $RAD
+			-re "(\\\$WIR\.*)\n" {
+				set timerad [timestamp -gmt]    ;# exact time the packet is received.
+				set radstr $expect_out(1,string);
+				set radstr [string trimright $radstr]
+				set rawstr [timestamp -gmt -format "$Nrecs %Y %m %d %H %M %S " -seconds $timerad]$radstr
+				# SAVE TO RAW FILE
+				set F [open $rawname a 0600]
+				puts $F $rawstr
+				close $F
+				# SEND RAW TO AVG AND RCV RESPONSE
+				set spawn_id $RADAV
+				send "$radstr\r\n"
+				expect {
+					-re "<<(RADRW\.*)>>"	{send_user "$expect_out(1,string)\n"} 
+				}
+				set Nrecs [expr $Nrecs + 1];
+			}
+		-i $RADAV
+			-re "<<(RADAV\.*)>>"	{send_user "$expect_out(1,string)\n"}
+	}
+}
