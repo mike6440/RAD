@@ -1,5 +1,5 @@
 THIS FILE: su.txt
-	Editdate: 2016 01 03
+	Editdate: 20170628T234415Z
 	SETUP FOR RAD TEST	
 
 RS232 FLAG: 0
